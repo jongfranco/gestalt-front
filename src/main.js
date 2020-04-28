@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
 
+import Card from '@/components/Card'
+
+Vue.component('m-card', Card)
 Vue.config.productionTip = false
 
 new Vue({
