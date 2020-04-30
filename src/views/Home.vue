@@ -2,7 +2,6 @@
   <div>
     <v-btn @click="summarize" :disabled="!papers.length" text>Summarize</v-btn>
     <v-btn @click="highlight" :disabled="!papers.length" text>Highlight</v-btn>
-
     <v-combobox
       :loading="isLoading && !isLoadingSummary"
       :items="themes"
@@ -11,6 +10,7 @@
       rounded
       outlined
       dense
+      clearable
     ></v-combobox>
     <v-skeleton-loader v-if="isLoadingSummary" ref="skeleton" type="paragraph" class="mx-auto"></v-skeleton-loader>
     <v-card v-else-if="summary.length" shaped outlined>
@@ -35,14 +35,14 @@ export default {
   },
   watch: {
     question () {
-      this.search()
+      if (this.question || this.KEYWORDS) this.search()
+    },
+    KEYWORDS () {
+      if (this.question || this.KEYWORDS) this.search()
     },
     papers () {
       this.summary = ''
       this.highlights = []
-    },
-    KEYWORDS () {
-      this.search()
     }
   },
   computed: {
@@ -76,14 +76,21 @@ export default {
     ]
   }),
   methods: {
-    async search () {
+    async search (params) {
       const response = await search.get('search', {
-        params: {
+        params: params || {
           q: this.question,
           keywords: this.KEYWORDS
         }
       })
       this.papers = response.data.hits
+    },
+    async rake () {
+      const response = await flask.post('rake', {
+        term: this.KEYWORDS[0],
+        papers: this.papers
+      })
+      console.log(response)
     },
     async highlight () {
       this.highlights = []

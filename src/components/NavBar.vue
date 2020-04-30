@@ -28,7 +28,8 @@ import Filters from '@/components/Filters'
 export default {
   components: { Filters },
   data: () => ({
-    dialog: false
+    dialog: false,
+    papers: []
   }),
   computed: {
     icon () {
