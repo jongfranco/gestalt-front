@@ -4,7 +4,7 @@
     <v-btn @click="highlight" :disabled="!papers.length" text>Highlight</v-btn>
 
     <v-combobox
-      :loading="isLoading"
+      :loading="isLoading && !isLoadingSummary"
       :items="themes"
       v-model="question"
       label="Question"
@@ -38,7 +38,8 @@ export default {
       this.search()
     },
     papers () {
-      this.summary = []
+      this.summary = ''
+      this.highlights = []
     },
     KEYWORDS () {
       this.search()
@@ -46,11 +47,11 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'KEYWORDS'
+      'KEYWORDS',
+      'isLoading'
     ])
   },
   data: () => ({
-    isLoading: false,
     isLoadingSummary: false,
     question: '',
     highlights: [],
@@ -76,7 +77,6 @@ export default {
   }),
   methods: {
     async search () {
-      this.isLoading = true
       const response = await search.get('search', {
         params: {
           q: this.question,
@@ -84,17 +84,14 @@ export default {
         }
       })
       this.papers = response.data.hits
-      this.isLoading = false
     },
     async highlight () {
-      this.isLoading = true
       this.highlights = []
       const response = await flask.post('highlight', {
         context: this.papers,
         question: this.question
       })
       this.highlights = response.data.results
-      this.isLoading = false
     },
     async summarize () {
       this.isLoadingSummary = true
