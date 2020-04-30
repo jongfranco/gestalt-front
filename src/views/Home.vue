@@ -39,18 +39,15 @@ export default {
     },
     papers () {
       this.summary = []
+    },
+    KEYWORDS () {
+      this.search()
     }
   },
   computed: {
     ...mapGetters([
       'KEYWORDS'
-    ]),
-    params () {
-      return {
-        q: this.question,
-        keywords: this.KEYWORDS
-      }
-    }
+    ])
   },
   data: () => ({
     isLoading: false,
@@ -82,7 +79,8 @@ export default {
       this.isLoading = true
       const response = await search.get('search', {
         params: {
-          q: this.question
+          q: this.question,
+          keywords: this.KEYWORDS
         }
       })
       this.papers = response.data.hits
