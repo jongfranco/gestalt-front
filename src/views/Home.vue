@@ -3,7 +3,7 @@
     <v-btn @click="summarize" :disabled="!papers.length" text>Summarize</v-btn>
     <v-btn @click="highlight" :disabled="!papers.length" text>Highlight</v-btn>
 
-    <v-select
+    <v-combobox
       :loading="isLoading"
       :items="themes"
       v-model="question"
@@ -11,7 +11,7 @@
       rounded
       outlined
       dense
-    ></v-select>
+    ></v-combobox>
     <v-skeleton-loader v-if="isLoadingSummary" ref="skeleton" type="paragraph" class="mx-auto"></v-skeleton-loader>
     <v-card v-else-if="summary.length" shaped outlined>
       <p class="caption mx-3 my-2 font-italic">{{summary}}</p>
