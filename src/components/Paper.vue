@@ -13,7 +13,6 @@
         </v-list>
       </v-card-subtitle>
       <v-card-text>
-        <!-- <div class="my-4 subtitle-1">{{answer.answer}}</div> -->
         <div v-html="highlightedText"></div>
       </v-card-text>
       <v-divider></v-divider>
@@ -29,7 +28,7 @@
 export default {
   props: {
     paper: Object,
-    answer: Object
+    highlight: Object
   },
   data: () => ({
     dialog: false
@@ -50,15 +49,15 @@ export default {
         })
       }
 
-      const start = this.answer ? this.answer.start_index : 0
-      const end = this.answer ? this.answer.end_index : 0
+      const start = this.highlight ? this.highlight.start_index : 0
+      const end = this.highlight ? this.highlight.end_index : 0
 
       const toAdd = {
         [start]: '<mark>',
         [end]: '</mark>'
       }
 
-      return this.answer
+      return this.highlight
         ? this.paper.abstract.insertTextAtIndices(toAdd)
         : this.paper.abstract
     }

@@ -1,25 +1,32 @@
 <template>
   <div>
+    <v-btn @click="summarize" :disabled="!papers.length" text>Summarize</v-btn>
+    <v-btn @click="highlight" :disabled="!papers.length" text>Highlight</v-btn>
+
     <v-select
-      :loading="isLoading"
+      :loading="isLoading || isLoadingSummary"
       :items="themes"
       v-model="question"
-      label="Themes"
-      outlined
+      label="Question"
       rounded
+      outlined
       dense
     ></v-select>
+    <v-skeleton-loader v-if="isLoadingSummary" ref="skeleton" type="paragraph" class="mx-auto"></v-skeleton-loader>
+    <v-card v-else-if="summary.length" shaped outlined>
+      <p class="caption mx-3 my-2 font-italic">{{summary}}</p>
+    </v-card>
     <Paper
       v-for="(paper, index) in papers"
       :key="index"
       :paper="paper._source"
-      :answer="answers[index]"
+      :highlight="highlights[index]"
     />
   </div>
 </template>
 <script>
 import search from '@/connections/search'
-import answer from '@/connections/answer'
+import flask from '@/connections/flask'
 import Paper from '@/components/Paper'
 export default {
   components: {
@@ -28,10 +35,10 @@ export default {
   watch: {
     question () {
       this.search()
-    },
-    papers () {
-      this.answer()
     }
+    // papers () {
+    //   this.highlight()
+    // }
   },
   computed: {
     params () {
@@ -42,8 +49,10 @@ export default {
   },
   data: () => ({
     isLoading: false,
+    isLoadingSummary: false,
     question: '',
-    answers: [],
+    highlights: [],
+    summary: 'In December 2019, a cluster of patients with pneumonia of unknown cause was linked to a seafood wholesale market in Wuhan, China. COVID-19 caused severe acute respiratory syndrome and was associated with ICU admission and high mortality. The major comorbidities of the fatality cases include hypertension, diabetes, coronary heart disease, cerebral infarction, and chronic bronchitis.',
     papers: [],
     themes: [
       'What is known about transmission, incubation, and environmental stability?',
@@ -74,15 +83,26 @@ export default {
       this.papers = response.data.hits
       this.isLoading = false
     },
-    async answer () {
+    async highlight () {
       this.isLoading = true
-      this.answers = []
-      const response = await answer.post('answer', {
+      this.highlights = []
+      const response = await flask.post('highlight', {
         context: this.papers,
         question: this.question
       })
-      this.answers = response.data.results
+      this.highlights = response.data.results
       this.isLoading = false
+    },
+    async summarize () {
+      this.isLoadingSummary = true
+      this.summaries = []
+      const response = await flask.post('summarize', {
+        papers: this.papers
+          .filter(p => p._source.text.length)
+          .map(p => p._source.text)
+      })
+      this.summary = response.data.summary
+      this.isLoadingSummary = false
     }
   }
 }
