@@ -4,8 +4,7 @@
       <v-row dense>
         <v-col>
           <v-combobox
-            v-model="selected"
-            :items="items"
+            v-model="keywords"
             label="Keywords"
             clearable
             outlined
@@ -21,7 +20,7 @@
               <v-expansion-panel-content>
                 <v-row dense>
                   <v-col cols="3" v-for="(topic, index) in topics" :key="index">
-                    <v-radio-group dense v-model="selected" :label="topic" multiple>
+                    <v-radio-group dense v-model="keywords" :label="topic" multiple>
                       <v-radio
                         v-for="(word, index) in synonyms[topic]"
                         :key="index"
@@ -41,9 +40,15 @@
 </template>
 <script>
 import { synonyms } from '@/utils/synonyms'
+import { mapMutations } from 'vuex'
 export default {
   created () {
     this.synonyms = synonyms
+  },
+  watch: {
+    keywords () {
+      this.SET_KEYWORDS(this.keywords)
+    }
   },
   computed: {
     words () {
@@ -56,8 +61,12 @@ export default {
   data: () => ({
     topic: '',
     dates: [],
-    keywords: [],
-    selected: []
-  })
+    keywords: []
+  }),
+  methods: {
+    ...mapMutations([
+      'SET_KEYWORDS'
+    ])
+  }
 }
 </script>

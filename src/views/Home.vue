@@ -4,7 +4,7 @@
     <v-btn @click="highlight" :disabled="!papers.length" text>Highlight</v-btn>
 
     <v-select
-      :loading="isLoading || isLoadingSummary"
+      :loading="isLoading"
       :items="themes"
       v-model="question"
       label="Question"
@@ -28,6 +28,7 @@
 import search from '@/connections/search'
 import flask from '@/connections/flask'
 import Paper from '@/components/Paper'
+import { mapGetters } from 'vuex'
 export default {
   components: {
     Paper
@@ -35,15 +36,19 @@ export default {
   watch: {
     question () {
       this.search()
+    },
+    papers () {
+      this.summary = []
     }
-    // papers () {
-    //   this.highlight()
-    // }
   },
   computed: {
+    ...mapGetters([
+      'KEYWORDS'
+    ]),
     params () {
       return {
-        q: this.question
+        q: this.question,
+        keywords: this.KEYWORDS
       }
     }
   },
@@ -52,7 +57,7 @@ export default {
     isLoadingSummary: false,
     question: '',
     highlights: [],
-    summary: 'In December 2019, a cluster of patients with pneumonia of unknown cause was linked to a seafood wholesale market in Wuhan, China. COVID-19 caused severe acute respiratory syndrome and was associated with ICU admission and high mortality. The major comorbidities of the fatality cases include hypertension, diabetes, coronary heart disease, cerebral infarction, and chronic bronchitis.',
+    summary: '',
     papers: [],
     themes: [
       'What is known about transmission, incubation, and environmental stability?',
