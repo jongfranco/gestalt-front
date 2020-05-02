@@ -5,30 +5,39 @@
       <v-toolbar-title color="primary">Gestalt</v-toolbar-title>
       <v-spacer></v-spacer>
       <div>
-        <v-btn @click="dialog = true" color="primary" text>
+        <v-btn @click="filters = true" color="primary" icon>
           <v-icon>mdi-filter-variant</v-icon>
         </v-btn>
-        <v-btn text :color="color">
-          <v-icon @click="changeTheme">{{icon}}</v-icon>
+        <v-btn @click="about = true" icon color="primary">
+          <v-icon>mdi-help-rhombus</v-icon>
+        </v-btn>
+        <v-btn @click="changeTheme" icon :color="color">
+          <v-icon>{{icon}}</v-icon>
         </v-btn>
       </div>
     </v-app-bar>
 
-    <v-dialog v-model="dialog">
+    <v-dialog v-model="filters">
       <v-card>
-        <v-card-title>Filters</v-card-title>
-        <v-divider></v-divider>
         <Filters />
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="about">
+      <v-card>
+        <About />
       </v-card>
     </v-dialog>
   </div>
 </template>
 <script>
 import Filters from '@/components/Filters'
+import About from '@/components/About'
 export default {
-  components: { Filters },
+  components: { Filters, About },
   data: () => ({
-    dialog: false,
+    filters: false,
+    about: false,
     papers: []
   }),
   computed: {
