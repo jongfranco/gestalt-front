@@ -2,7 +2,8 @@ import axios from 'axios'
 import store from '@/store'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001',
+  baseURL: 'https://gestalt-search.herokuapp.com/',
+  // baseURL: 'httP://localhost:3001',
   timeout: 120000,
   headers: {
     'Content-Type': 'application/json'
