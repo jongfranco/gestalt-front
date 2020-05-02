@@ -19,9 +19,29 @@
       <v-card-actions>
         <v-rating :value="0" color="amber" dense half-increments readonly size="14"></v-rating>
         <v-spacer></v-spacer>
+        <v-btn @click="dialog=true" text color="primary" :disabled="!highlight">Scores</v-btn>
         <v-btn :href="paper.url" target="_blank" text color="primary">View</v-btn>
       </v-card-actions>
     </v-card>
+
+    <v-dialog v-model="dialog">
+      <v-card>
+        <v-col>
+          <p class="overline">Start Scores</p>
+          <area-chart
+            xtitle="Position in Abstract"
+            ytitle="Score"
+            :curve="false"
+            :data="startScores"
+          ></area-chart>
+        </v-col>
+
+        <v-col>
+          <p class="overline">End Scores</p>
+          <area-chart xtitle="Position in Abstract" ytitle="Score" :curve="false" :data="endScores"></area-chart>
+        </v-col>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
@@ -41,6 +61,18 @@ export default {
     ]
   },
   computed: {
+    startScores () {
+      return this.highlight ? this.highlight.start_scores.reduce((acc, cur, index) => {
+        acc[index] = cur
+        return acc
+      }, {}) : []
+    },
+    endScores () {
+      return this.highlight ? this.highlight.end_scores.reduce((acc, cur, index) => {
+        acc[index] = cur
+        return acc
+      }, {}) : []
+    },
     highlightedText () {
       /* eslint no-extend-native: ["error", { "exceptions": ["String"] }] */
       String.prototype.insertTextAtIndices = function (text) {
