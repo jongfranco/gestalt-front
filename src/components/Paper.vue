@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card class="my-2">
-      <v-card-title>{{paper.title}}</v-card-title>
+      <v-card-title>{{paper._source.title}}</v-card-title>
       <v-card-subtitle>
         <v-list dense>
           <v-list-item v-for="item in lists" :key="item.title">
@@ -17,28 +17,45 @@
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
-        <v-rating :value="0" color="amber" dense half-increments readonly size="14"></v-rating>
+        <v-btn :href="paper._source.url" target="_blank" text color="primary">View</v-btn>
         <v-spacer></v-spacer>
-        <v-btn @click="dialog=true" text color="primary" :disabled="!highlight">Scores</v-btn>
-        <v-btn :href="paper.url" target="_blank" text color="primary">View</v-btn>
+        <v-btn @click="searchDialog=true" text color="primary">
+          <v-icon left>mdi-magnify</v-icon>Search
+        </v-btn>
+        <v-btn @click="highlightDialog=true" text color="primary" :disabled="!highlight">
+          <v-icon left>mdi-format-color-highlight</v-icon>Highlight
+        </v-btn>
       </v-card-actions>
     </v-card>
 
-    <v-dialog v-model="dialog">
+    <v-dialog v-model="highlightDialog">
       <v-card>
         <v-col>
           <p class="overline">Start Scores</p>
-          <area-chart
-            xtitle="Position in Abstract"
-            ytitle="Score"
-            :curve="false"
-            :data="startScores"
-          ></area-chart>
+          <area-chart :curve="false" :data="startScores"></area-chart>
         </v-col>
 
         <v-col>
           <p class="overline">End Scores</p>
-          <area-chart xtitle="Position in Abstract" ytitle="Score" :curve="false" :data="endScores"></area-chart>
+          <area-chart :curve="false" :data="endScores"></area-chart>
+        </v-col>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="searchDialog">
+      <v-card>
+        <v-card-title>Total Search Score: {{paper._explanation.value}}</v-card-title>
+        <v-divider></v-divider>
+        <v-col>
+          <v-treeview
+            :items="paper._explanation.details"
+            item-children="details"
+            item-text="description"
+          >
+            <template v-slot:prepend="{ item }">
+              <v-icon color="black" v-text="makeIcon(item.description)"></v-icon>
+            </template>
+          </v-treeview>
         </v-col>
       </v-card>
     </v-dialog>
@@ -51,13 +68,24 @@ export default {
     highlight: Object
   },
   data: () => ({
-    dialog: false
+    highlightDialog: false,
+    searchDialog: false,
+    treeSearch: ''
   }),
+  methods: {
+    makeIcon (description) {
+      if (description.includes('sum')) return 'mdi-timeline-plus-outline'
+      if (description.includes('weight')) return 'mdi-weight'
+      if (description.includes('score')) return 'mdi-graph'
+      if (['boost', 'idf', 'tf'].some(x => description.includes(x))) return 'mdi-function-variant'
+      return ''
+    }
+  },
   created () {
     this.lists = [
-      { title: 'Authors:', content: this.paper.authors },
-      { title: 'Journal:', content: this.paper.journal },
-      { title: 'Published:', content: this.paper.published }
+      { title: 'Authors:', content: this.paper._source.authors.split(/\W+/).slice(0, 3).join(' ') },
+      { title: 'Journal:', content: this.paper._source.journal },
+      { title: 'Published:', content: this.paper._source.published }
     ]
   },
   computed: {
@@ -90,8 +118,8 @@ export default {
       }
 
       return this.highlight
-        ? this.paper.abstract.insertTextAtIndices(toAdd)
-        : this.paper.abstract
+        ? this.paper._source.abstract.insertTextAtIndices(toAdd)
+        : this.paper._source.abstract
     }
   }
 }
